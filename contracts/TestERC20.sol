@@ -38,6 +38,8 @@ contract TestERC20 is ERC20, AccessControl {
         _mint(msg.sender, INITIAL_SUPPLY);
         _lastMinted = block.timestamp;
         _dailyMintedAmount = 0;
+        _setRoleAdmin(DEFAULT_ADMIN_ROLE, DEFAULT_ADMIN_ROLE);
+        _setRoleAdmin(MINTER_ROLE, DEFAULT_ADMIN_ROLE);
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(MINTER_ROLE, msg.sender);
     }
@@ -47,7 +49,6 @@ contract TestERC20 is ERC20, AccessControl {
      * @param amount The amount of tokens to mint.
      */
     function mint(uint256 amount) public onlyRole(MINTER_ROLE) {
-
         // Calculate time passed since last minting
         uint256 timePassed = block.timestamp - _lastMinted;
 
@@ -74,30 +75,5 @@ contract TestERC20 is ERC20, AccessControl {
      */
     function burn(uint256 amount) public onlyRole(DEFAULT_ADMIN_ROLE) {
         _burn(msg.sender, amount);
-    }
-
-    /**
-     * @dev Function to grant minter role to an account.
-     * @param account The account to grant the minter role to.
-     */
-    function grantMinterRole(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(!hasRole(MINTER_ROLE, account), "Account already has minter role");
-        grantRole(MINTER_ROLE, account);
-    }
-
-    /**
-     * @dev Function to revoke minter role from an account.
-     * @param account The account to revoke the minter role from.
-     */
-    function revokeMinterRole(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(hasRole(MINTER_ROLE, account), "Account does not have minter role");
-        revokeRole(MINTER_ROLE, account);
-    }
-
-    /**
-     * @dev Function to renounce minter role.
-     */
-    function renounceMinterRole() public {
-        renounceRole(MINTER_ROLE, msg.sender);
     }
 }

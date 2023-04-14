@@ -121,22 +121,22 @@ describe("Test of Server", function () {
     });
 
     it("Test the Minter role", async () => {
-        await token.connect(owner).grantMinterRole(minter.getAddress());
+        await token.connect(owner).grantRole(token.MINTER_ROLE(), minter.getAddress());
         await token.connect(minter).mint(BigNumber.from(2000).mul(BigNumber.from(10).pow(BigNumber.from(18))));
         assert.deepStrictEqual(
             await token.balanceOf(minter.getAddress()),
             BigNumber.from(2000).mul(BigNumber.from(10).pow(BigNumber.from(18)))
         );
 
-        await token.connect(owner).revokeMinterRole(minter.getAddress());
-        await token.connect(owner).grantMinterRole(minter.getAddress());
+        await token.connect(owner).revokeRole(token.MINTER_ROLE(), minter.getAddress());
+        await token.connect(owner).grantRole(token.MINTER_ROLE(), minter.getAddress());
         await token.connect(minter).mint(BigNumber.from(2000).mul(BigNumber.from(10).pow(BigNumber.from(18))));
         assert.deepStrictEqual(
             await token.balanceOf(minter.getAddress()),
             BigNumber.from(4000).mul(BigNumber.from(10).pow(BigNumber.from(18)))
         );
 
-        await token.connect(owner).grantMinterRole(tester.getAddress());
+        await token.connect(owner).grantRole(token.MINTER_ROLE(), tester.getAddress());
         await token.connect(tester).mint(BigNumber.from(2000).mul(BigNumber.from(10).pow(BigNumber.from(18))));
     });
 });
