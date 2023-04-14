@@ -50,12 +50,12 @@ contract TestERC20 is ERC20, AccessControl {
      */
     function mint(uint256 amount) public onlyRole(MINTER_ROLE) {
         // Calculate time passed since last minting
-        uint256 timePassed = block.timestamp - _lastMinted;
+        uint256 nowDay = block.timestamp / 86400;
 
         // If a day has passed, reset daily minted amount and timestamp
-        if (timePassed >= 1 days) {
+        if (nowDay != _lastMinted) {
             _dailyMintedAmount = 0;
-            _lastMinted = block.timestamp;
+            _lastMinted = nowDay;
         }
 
         // Check if daily mint limit has been exceeded
