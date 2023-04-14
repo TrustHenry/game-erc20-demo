@@ -14,6 +14,7 @@ import "@nomiclabs/hardhat-web3";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import "solidity-docgen";
 
 dotenv.config({ path: "env/.env" });
 
