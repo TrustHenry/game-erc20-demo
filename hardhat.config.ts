@@ -30,7 +30,7 @@ function createPrivateKey() {
         process.env.MANAGER_KEY = Wallet.createRandom().privateKey;
     }
 }
-createPrivateKey();
+// createPrivateKey();
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -43,7 +43,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 function getAccounts() {
-    return [process.env.MANAGER_KEY || "", process.env.MINTER_KEY || "", process.env.TESTER_KEY || ""];
+    return [process.env.MANAGER_KEY || "", process.env.MINTER_KEY || ""];
 }
 
 function getTestAccounts() {

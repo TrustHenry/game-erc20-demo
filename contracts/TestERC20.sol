@@ -12,16 +12,16 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract TestERC20 is ERC20, AccessControl {
 
     // Maximum supply of tokens
-    uint256 private constant MAX_Supply = 500000000 * (10 ** 18);
+    uint256 private constant MAX_Supply = 10000 * (10 ** 18);
 
     // Initial supply of tokens
-    uint256 public constant INITIAL_SUPPLY = 100000000 * (10 ** 18);
+    uint256 public constant INITIAL_SUPPLY = 10000 * (10 ** 18);
 
     // Role for minters
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     // Maximum amount of tokens that can be minted daily
-    uint256 private _mintLimit = 10000 * (10 ** 18);
+    uint256 private _mintLimit = 100 * (10 ** 18);
 
     // Timestamp of the last minted token
     uint256 private _lastMinted;
