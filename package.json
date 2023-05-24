@@ -20,6 +20,7 @@
         "debug:Config": "NODE_ENV=test node_modules/.bin/hardhat test test/service/Config.test.ts",
         "debug:BOA": "NODE_ENV=test node_modules/.bin/hardhat test test/service/BOA.test.ts",
         "deploy:testnet": "NODE_ENV=test node_modules/.bin/hardhat test test/Deploy.test.ts --network biznet_test_net",
+        "test:lockup": "NODE_ENV=test node_modules/.bin/hardhat test test/service/Lock-up.test.ts",
         "docgen": "hardhat docgen"
     },
     "author": "BOSAGORA Foundation",
