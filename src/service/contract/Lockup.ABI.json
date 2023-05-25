@@ -5,11 +5,6 @@
         "internalType": "address",
         "name": "tokenAddress",
         "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "releaseTimestamp",
-        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -25,6 +20,11 @@
       {
         "internalType": "uint256",
         "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "releaseTime",
         "type": "uint256"
       }
     ],
@@ -42,6 +42,25 @@
       }
     ],
     "name": "getLockedTokenBalance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "beneficiary_address",
+        "type": "address"
+      }
+    ],
+    "name": "getLockedTokenReleaseTime",
     "outputs": [
       {
         "internalType": "uint256",

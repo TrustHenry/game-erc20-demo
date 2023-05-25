@@ -1,48 +1,53 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /**
- * @title Token Lockup
- * @dev A smart contract that allows users to deposit ERC20 tokens and lock them up until a specified release time.
+ * @title Lockup Contract
+ * @dev A contract that allows users to deposit ERC20 tokens and lock them up until a specified release time.
  */
-
 contract Lockup {
     ERC20 private token;
-    uint256 private releaseTime;
-    mapping(address => uint256) private deposits;
+    mapping(address => DepositLock) private deposits;
 
-    /**
-     * @dev Constructor function
-     * @param tokenAddress The address of the ERC20 token contract
-     * @param releaseTimestamp The timestamp when the locked tokens can be withdrawn
-     */
-    constructor(address tokenAddress, uint256 releaseTimestamp) {
-        token = ERC20(tokenAddress);
-        releaseTime = releaseTimestamp;
+    struct DepositLock {
+        uint256 releaseTime;
+        uint256 amount;
     }
 
     /**
-     * @dev Deposits ERC20 tokens into the contract and locks them up.
-     * @param beneficiary_address Address to be the beneficiary of the token
-     * @param amount The amount of tokens to deposit
+     * @dev Initializes the Lockup contract.
+     * @param tokenAddress The address of the ERC20 token to be used.
      */
-    function deposit(address beneficiary_address, uint256 amount) external {
-        require(amount > 0, "Deposit amount must be greater than zero");
+    constructor(address tokenAddress) {
+        token = ERC20(tokenAddress);
+    }
 
+    /**
+     * @dev Allows a user to deposit ERC20 tokens and lock them up until the specified release time.
+     * @param beneficiary_address The address of the beneficiary who will receive the tokens after the release time.
+     * @param amount The amount of tokens to be deposited.
+     * @param releaseTime The timestamp indicating when the tokens can be released.
+     */
+    function deposit(address beneficiary_address, uint256 amount, uint256 releaseTime) external {
+        require(amount > 0, "Deposit amount must be greater than zero");
+        require(deposits[beneficiary_address].amount == 0, "Deposit can only be made once per address.");
+        require(releaseTime >= block.timestamp, "ReleaseTime must be equal to or greater than block timestamp.");
         // Transfer tokens from sender to the contract
         require(token.transferFrom(msg.sender, address(this), amount), "Token transfer failed");
 
-        // Update the deposit balance for the sender
-        deposits[beneficiary_address] += amount;
+        // Save the deposit balance and release time for the sender
+        deposits[beneficiary_address].amount = amount;
+        deposits[beneficiary_address].releaseTime = releaseTime;
     }
 
     /**
-     * @dev Withdraws the locked tokens if the release time has arrived.
+     * @dev Allows a user to withdraw their locked tokens after the release time has passed.
      */
     function withdraw() external {
-        require(block.timestamp >= releaseTime, "Release time has not yet arrived");
-        uint256 amount = deposits[msg.sender];
+        require(block.timestamp >= deposits[msg.sender].releaseTime, "Release time has not yet arrived");
+        uint256 amount = deposits[msg.sender].amount;
         require(amount > 0, "No tokens to withdraw");
 
         // Clear the deposit balance for the sender
@@ -53,11 +58,20 @@ contract Lockup {
     }
 
     /**
-     * @dev Gets the balance of locked tokens for the calling user.
-     * @param beneficiary_address Address to be the beneficiary of the token
-     * @return The balance of locked tokens
+     * @dev Returns the locked token balance for a given beneficiary address.
+     * @param beneficiary_address The address of the beneficiary.
+     * @return The amount of locked tokens.
      */
     function getLockedTokenBalance(address beneficiary_address) external view returns (uint256) {
-        return deposits[beneficiary_address];
+        return deposits[beneficiary_address].amount;
+    }
+
+    /**
+     * @dev Returns the release time for the locked tokens of a given beneficiary address.
+     * @param beneficiary_address The address of the beneficiary.
+     * @return The release time timestamp.
+     */
+    function getLockedTokenReleaseTime(address beneficiary_address) external view returns (uint256) {
+        return deposits[beneficiary_address].releaseTime;
     }
 }

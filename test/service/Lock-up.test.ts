@@ -35,18 +35,7 @@ describe("Test of Server", function () {
         console.log("Token_address", token_address);
 
         const LockupContractFactory = await hre.ethers.getContractFactory("Lockup");
-
-        const blockNumBefore = await hre.ethers.provider.getBlockNumber();
-        const blockBefore = await hre.ethers.provider.getBlock(blockNumBefore);
-        const blockTimestamp = blockBefore.timestamp;
-
-        console.log("Block number :", blockNumBefore);
-        console.log("Block timestamp :", blockTimestamp);
-
-        const LockUpcontract = (await LockupContractFactory.connect(owner).deploy(
-            token_address,
-            blockTimestamp + 3
-        )) as Lockup;
+        const LockUpcontract = (await LockupContractFactory.connect(owner).deploy(token_address)) as Lockup;
 
         await LockUpcontract.deployed();
         lockup_address = LockUpcontract.address;
@@ -60,7 +49,7 @@ describe("Test of Server", function () {
         });
     });
 
-    it("Test the Token balance", async () => {
+    it("Test the Lockup Token", async () => {
         console.log("owner :", owner.getAddress(), await hre.ethers.provider.getBalance(owner.getAddress()));
         console.log("minter :", minter.getAddress(), await hre.ethers.provider.getBalance(minter.getAddress()));
         console.log("tester :", tester.getAddress(), await hre.ethers.provider.getBalance(tester.getAddress()));
@@ -74,9 +63,22 @@ describe("Test of Server", function () {
         await token
             .connect(owner)
             .approve(lockup.address, BigNumber.from(100).mul(BigNumber.from(10).pow(BigNumber.from(18))));
+
+        let blockNumBefore = await hre.ethers.provider.getBlockNumber();
+        const blockBefore = await hre.ethers.provider.getBlock(blockNumBefore);
+        const blockTimestampBefore = blockBefore.timestamp;
+
+        console.log("Block number :", blockNumBefore);
+        console.log("Block timestamp :", blockTimestampBefore);
+
         await lockup
             .connect(owner)
-            .deposit(tester.getAddress(), BigNumber.from(100).mul(BigNumber.from(10).pow(BigNumber.from(18))));
+            .deposit(
+                tester.getAddress(),
+                BigNumber.from(100).mul(BigNumber.from(10).pow(BigNumber.from(18))),
+                blockTimestampBefore + 5
+            );
+
         assert.deepStrictEqual(
             await token.balanceOf(owner.getAddress()),
             BigNumber.from(9900).mul(BigNumber.from(10).pow(BigNumber.from(18)))
@@ -88,17 +90,24 @@ describe("Test of Server", function () {
             BigNumber.from(100).mul(BigNumber.from(10).pow(BigNumber.from(18)))
         );
 
-        let blockNumBefore = await hre.ethers.provider.getBlockNumber();
-        console.log("Block number :", blockNumBefore);
+        await sleep(5000);
 
         // lockup 컨트랙트 출금
-        await sleep(5000);
+        blockNumBefore = await hre.ethers.provider.getBlockNumber();
+        console.log("Block number :", blockNumBefore);
+        assert.deepStrictEqual(
+            await lockup.getLockedTokenReleaseTime(tester.getAddress()),
+            BigNumber.from(blockTimestampBefore + 5)
+        );
+
+        assert.deepStrictEqual(await token.balanceOf(tester.getAddress()), BigNumber.from(0));
+
         const tester_signer = new NonceManager(new GasPriceManager(provider.getSigner(testerKey.address)));
         await lockup.connect(tester_signer).withdraw();
 
         assert.deepStrictEqual(
-            await token.balanceOf(owner.getAddress()),
-            BigNumber.from(10000).mul(BigNumber.from(10).pow(BigNumber.from(18)))
+            await token.balanceOf(tester.getAddress()),
+            BigNumber.from(100).mul(BigNumber.from(10).pow(BigNumber.from(18)))
         );
 
         assert.deepStrictEqual(
