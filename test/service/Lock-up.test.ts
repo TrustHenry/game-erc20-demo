@@ -52,12 +52,18 @@ describe("Test of Server", function () {
         lockup_address = LockUpcontract.address;
         lockup = new hre.ethers.Contract(lockup_address, TEST_LOCKUP_ABI, hre.ethers.provider) as Lockup;
         console.log("Lockup address", lockup_address);
+
+        const minter_signer = new NonceManager(new GasPriceManager(provider.getSigner(minterKey.address)));
+        await minter_signer.sendTransaction({
+            to: tester.getAddress(),
+            value: BigNumber.from(1).mul(BigNumber.from(10).pow(BigNumber.from(18))),
+        });
     });
 
     it("Test the Token balance", async () => {
-        console.log("owner :", await hre.ethers.provider.getBalance(owner.getAddress()));
-        console.log("minter :", await hre.ethers.provider.getBalance(minter.getAddress()));
-        console.log("tester :", await hre.ethers.provider.getBalance(tester.getAddress()));
+        console.log("owner :", owner.getAddress(), await hre.ethers.provider.getBalance(owner.getAddress()));
+        console.log("minter :", minter.getAddress(), await hre.ethers.provider.getBalance(minter.getAddress()));
+        console.log("tester :", tester.getAddress(), await hre.ethers.provider.getBalance(tester.getAddress()));
 
         assert.deepStrictEqual(
             await token.balanceOf(owner.getAddress()),
@@ -68,7 +74,9 @@ describe("Test of Server", function () {
         await token
             .connect(owner)
             .approve(lockup.address, BigNumber.from(100).mul(BigNumber.from(10).pow(BigNumber.from(18))));
-        await lockup.connect(owner).deposit(BigNumber.from(100).mul(BigNumber.from(10).pow(BigNumber.from(18))));
+        await lockup
+            .connect(owner)
+            .deposit(tester.getAddress(), BigNumber.from(100).mul(BigNumber.from(10).pow(BigNumber.from(18))));
         assert.deepStrictEqual(
             await token.balanceOf(owner.getAddress()),
             BigNumber.from(9900).mul(BigNumber.from(10).pow(BigNumber.from(18)))
@@ -76,7 +84,7 @@ describe("Test of Server", function () {
 
         // lockup 컨트랙트 잔액 조회
         assert.deepStrictEqual(
-            await lockup.getLockedTokenBalance(),
+            await lockup.getLockedTokenBalance(tester.getAddress()),
             BigNumber.from(100).mul(BigNumber.from(10).pow(BigNumber.from(18)))
         );
 
@@ -85,7 +93,8 @@ describe("Test of Server", function () {
 
         // lockup 컨트랙트 출금
         await sleep(5000);
-        await lockup.connect(owner).withdraw();
+        const tester_signer = new NonceManager(new GasPriceManager(provider.getSigner(testerKey.address)));
+        await lockup.connect(tester_signer).withdraw();
 
         assert.deepStrictEqual(
             await token.balanceOf(owner.getAddress()),
@@ -93,7 +102,7 @@ describe("Test of Server", function () {
         );
 
         assert.deepStrictEqual(
-            await lockup.getLockedTokenBalance(),
+            await lockup.getLockedTokenBalance(tester.getAddress()),
             BigNumber.from(0).mul(BigNumber.from(10).pow(BigNumber.from(18)))
         );
     });

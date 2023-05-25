@@ -43,7 +43,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 function getAccounts() {
-    return [process.env.MANAGER_KEY || "", process.env.MINTER_KEY || ""];
+    return [process.env.MANAGER_KEY || "", process.env.MINTER_KEY || "", process.env.TESTER_KEY || ""];
 }
 
 function getTestAccounts() {

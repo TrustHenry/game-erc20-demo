@@ -24,16 +24,17 @@ contract Lockup {
 
     /**
      * @dev Deposits ERC20 tokens into the contract and locks them up.
+     * @param beneficiary_address Address to be the beneficiary of the token
      * @param amount The amount of tokens to deposit
      */
-    function deposit(uint256 amount) external {
+    function deposit(address beneficiary_address, uint256 amount) external {
         require(amount > 0, "Deposit amount must be greater than zero");
 
         // Transfer tokens from sender to the contract
         require(token.transferFrom(msg.sender, address(this), amount), "Token transfer failed");
 
         // Update the deposit balance for the sender
-        deposits[msg.sender] += amount;
+        deposits[beneficiary_address] += amount;
     }
 
     /**
@@ -53,9 +54,10 @@ contract Lockup {
 
     /**
      * @dev Gets the balance of locked tokens for the calling user.
+     * @param beneficiary_address Address to be the beneficiary of the token
      * @return The balance of locked tokens
      */
-    function getLockedTokenBalance() external view returns (uint256) {
-        return deposits[msg.sender];
+    function getLockedTokenBalance(address beneficiary_address) external view returns (uint256) {
+        return deposits[beneficiary_address];
     }
 }

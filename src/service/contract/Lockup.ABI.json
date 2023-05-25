@@ -18,6 +18,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "beneficiary_address",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
@@ -29,7 +34,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "beneficiary_address",
+        "type": "address"
+      }
+    ],
     "name": "getLockedTokenBalance",
     "outputs": [
       {
