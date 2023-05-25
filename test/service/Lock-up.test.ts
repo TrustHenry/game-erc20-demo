@@ -5,17 +5,13 @@ import { solidity } from "ethereum-waffle";
 import { BigNumber, Wallet } from "ethers";
 import fs from "fs";
 import * as hre from "hardhat";
-import * as path from "path";
-import { URL } from "url";
 import { Config } from "../../src/service/common/Config";
 import { GasPriceManager } from "../../src/service/contract/GasPriceManager";
 import { TestERC20, Lockup } from "../../typechain-types";
-import { TestClient, TestWalletServer } from "../Utility";
 
 chai.use(solidity);
 
 describe("Test of Server", function () {
-    const config = new Config();
     const ownerKey = new hre.ethers.Wallet(process.env.MANAGER_KEY || "");
     const minterKey = new hre.ethers.Wallet(process.env.MINTER_KEY || "");
     const testerKey = new hre.ethers.Wallet(process.env.TESTER_KEY || "");
